@@ -1,5 +1,5 @@
 from collections import deque
-from vacuum_project.node import Node
+from node import Node
 def dfs_2(self):
         root_node = Node(self.agent_x, self.agent_y, self.matrix, parent=None, action=f"Bắt đầu tại ({self.agent_x},{self.agent_y})")
         if root_node.is_goal():
