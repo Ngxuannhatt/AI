@@ -9,7 +9,7 @@ def ids_1(self):
     limit = 0
     while True:
         # Gọi hàm tìm kiếm giới hạn độ sâu với giới hạn tầng hiện tại
-        result, status = self.depth_limited_search(limit)
+        result, status = depth_limited_search(self,limit)
         
         if status == "SUCCESS":
             return result      # Tìm thấy đường đi thành công
@@ -42,7 +42,7 @@ def depth_limited_search(self, limit):
         curr = frontier.pop()  # LẤY RA TỪ CUỐI STACK (DFS)
         steps_limit += 1
         
-        # 1. KIỂM TRA ĐÍCH MUỘN (Late Test) đúng yêu cầu của bạn
+        # 1. KIỂM TRA ĐÍCH MUỘN (Late Test)
         if curr.is_goal():
             path = []
             temp = curr
