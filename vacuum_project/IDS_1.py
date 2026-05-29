@@ -63,7 +63,6 @@ def depth_limited_search(self, limit):
         if state_key in reached_at_depth and reached_at_depth[state_key] <= curr.depth:
             continue
         reached_at_depth[state_key] = curr.depth
-
         r, c = curr.x, curr.y
         
         # --- SINH CÁC NODE CON ---
