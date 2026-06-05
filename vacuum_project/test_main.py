@@ -11,8 +11,13 @@ from IDS_2 import ids_2
 from UCS import ucs
 from GS import gs
 from Astar import A_Star
-
-
+from IDAstar import IDAstar
+from Simple_Hill_Climbing import Simple_Hill_Climbing
+from Steepest_Ascent_Hill_Climbing import Steepest_Ascent_Hill_Climbing
+from Stochastic_Hill_Climbing import Stochastic_Hill_Climbing
+from Random_Restart_Hill_Climbing import Random_Restart_Hill_Climbing
+from Local_Beam_Search import Local_Beam_Search
+from Simulated_Annealing import SimulatedAnnealing
 # ==========================================
 # PHẦN 2: LỚP GIAO DIỆN (UI) CHÍNH
 # ==========================================
@@ -32,18 +37,34 @@ class VacuumApp:
         self.setup_ui()
 
     def setup_ui(self):
-        # --- FRAME BÊN TRÁI: ĐIỀU KHIỂN & CHỌN THUẬT TOÁN ---
-        left_frame = tk.Frame(self.root, width=200, bg="#f0f0f0", padx=10, pady=10)
-        left_frame.pack(side=tk.LEFT, fill=tk.Y)
-
-        tk.Label(left_frame, text="Kích thước ma trận (n):", bg="#f0f0f0").pack(anchor="w")
-        self.entry_n = tk.Entry(left_frame)
-        self.entry_n.insert(0, "3") # Mặc định n=3
-        self.entry_n.pack(fill=tk.X, pady=(0, 15))
-
-        tk.Button(left_frame, text="Tạo Mới / Reset", command=self.generate_map, bg="#ffcc00").pack(fill=tk.X, pady=(0, 20))
-
-        tk.Label(left_frame, text="CHỌN THUẬT TOÁN:", bg="#f0f0f0", font=("Arial", 10, "bold")).pack(anchor="w")
+        
+        # --- FRAME BÊN TRÁI CÓ THANH CUỘN --- 
+        left_container = tk.Frame(self.root) 
+        left_container.pack(side=tk.LEFT, fill=tk.Y) 
+        # Scrollbar
+        scrollbar = tk.Scrollbar(left_container, orient="vertical")
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y) 
+        # Canvas chứa nội dung cuộn 
+        canvas = tk.Canvas( left_container, width=260, bg="#f0f0f0", highlightthickness=0, yscrollcommand=scrollbar.set ) 
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True) 
+        scrollbar.config(command=canvas.yview) 
+        # Frame thật sự chứa các widget
+        left_frame = tk.Frame( canvas, bg="#f0f0f0", padx=10, pady=10 ) 
+        canvas.create_window((0, 0), window=left_frame, anchor="nw") 
+        # Cập nhật vùng cuộn 
+        def configure_scroll_region(event): 
+            canvas.configure(scrollregion=canvas.bbox("all")) 
+        left_frame.bind("<Configure>", configure_scroll_region) 
+        # Cuộn bằng bánh xe chuột 
+        def on_mousewheel(event): canvas.yview_scroll(int(-1 * (event.delta / 120)), "units") 
+        canvas.bind_all("<MouseWheel>", on_mousewheel) 
+        # ========================== # CÁC WIDGET BÊN TRÁI # ========================== 
+        tk.Label( left_frame, text="Kích thước ma trận (n):", bg="#f0f0f0" ).pack(anchor="w") 
+        self.entry_n = tk.Entry(left_frame) 
+        self.entry_n.insert(0, "3") 
+        self.entry_n.pack(fill=tk.X, pady=(0, 15)) 
+        tk.Button( left_frame, text="Tạo Mới / Reset", command=self.generate_map, bg="#ffcc00" ).pack(fill=tk.X, pady=(0, 20)) 
+        tk.Label( left_frame, text="CHỌN THUẬT TOÁN:", bg="#f0f0f0", font=("Arial", 10, "bold") ).pack(anchor="w")
         
         # 4 Ô Thuật Toán
         tk.Button(left_frame, text="BFS Tiếp cận 1\n(Kiểm tra đích muộn)", command=lambda: self.run_algorithm("BFS1"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
@@ -55,6 +76,15 @@ class VacuumApp:
         tk.Button(left_frame, text="UCS", command=lambda: self.run_algorithm("UCS"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
         tk.Button(left_frame, text="GS", command=lambda: self.run_algorithm("GS"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
         tk.Button(left_frame, text="Astar", command=lambda: self.run_algorithm("Astar"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="IDAstar", command=lambda: self.run_algorithm("IDAstar"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="Simple_Hill_Climbing", command=lambda: self.run_algorithm("Simple_Hill_Climbing"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="Steepest_Ascent_Hill_Climbing", command=lambda: self.run_algorithm("Steepest_Ascent_Hill_Climbing"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="Stochastic_Hill_Climbing", command=lambda: self.run_algorithm("Stochastic_Hill_Climbing"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="Random_Restart_Hill_Climbing", command=lambda: self.run_algorithm("Random_Restart_Hill_Climbing"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="Local_Beam_Search", command=lambda: self.run_algorithm("Local_Beam_Search"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        tk.Button(left_frame, text="SimulatedAnnealing", command=lambda: self.run_algorithm("SimulatedAnnealing"), bg="#d9d9d9").pack(fill=tk.X, pady=5)
+        
+        
         # --- FRAME Ở GIỮA: BÀN CỜ CARO ---
         center_frame = tk.Frame(self.root, bg="white")
         center_frame.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=10, pady=10)
@@ -64,6 +94,9 @@ class VacuumApp:
         
         # Bắt sự kiện thay đổi kích thước cửa sổ để vẽ lại bàn cờ cho khớp
         self.canvas.bind("<Configure>", lambda e: self.draw_grid())
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+            canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
         # --- FRAME BÊN PHẢI: NHẬT KÝ & TRUY VẾT ---
         right_frame = tk.Frame(self.root, width=300, bg="#f0f0f0", padx=10, pady=10)
@@ -185,6 +218,20 @@ class VacuumApp:
             path = gs(self)
         elif algo_type == "Astar":
             path = A_Star(self)
+        elif algo_type == "IDAstar":
+            path = IDAstar(self)
+        elif algo_type == "Simple_Hill_Climbing":
+            path = Simple_Hill_Climbing(self)
+        elif algo_type == "Stochastic_Hill_Climbing":
+            path = Stochastic_Hill_Climbing(self)
+        elif algo_type =="Steepest_Hill_Climbing":
+            path = Steepest_Ascent_Hill_Climbing(self)
+        elif algo_type =="Random_Restart_Hill_Climbing":
+            path= Random_Restart_Hill_Climbing(self)
+        elif algo_type =="Local_Beam_Search":
+            path= Local_Beam_Search(self)
+        elif algo_type =="SimulatedAnnealing":
+            path = SimulatedAnnealing(self)
         if path:
             self.write_log(f"-> Tìm thấy đường đi! (Số bước: {len(path)-1})", "log")
             self.animate_path(path, 0)
