@@ -21,7 +21,7 @@ def bfs_1(self):
                     temp = temp.parent
                 path.reverse() # Trả về từ Start -> Goal
                 return path
-            
+             
             # 2. KIỂM TRA TRÙNG LẶP & ĐƯA VÀO REACHED
             state_key = curr.get_state_key()
             if state_key in reached:

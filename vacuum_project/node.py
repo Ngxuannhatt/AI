@@ -15,3 +15,4 @@ class Node:
 
     def get_state_key(self):
         return (self.x, self.y, tuple(tuple(row) for row in self.matrix))
+   

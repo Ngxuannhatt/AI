@@ -10,11 +10,12 @@ def get_vacuum_neighbors(self, curr):
     """
     possible_moves = []
     r, c = curr.x, curr.y
+    n = len(curr.matrix)
     
     # 1. Hành động Di chuyển (Lên, Xuống, Trái, Phải)
     for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
         nr, nc = r + dr, c + dc
-        if 0 <= nr < self.n and 0 <= nc < self.n:
+        if 0 <= nr < n and 0 <= nc < n:
             child = Node(nr, nc, curr.matrix, parent=curr, action=f"Đi tới ({nr},{nc})")
             possible_moves.append(child) # Hill climbing không cần lưu cost riêng biệt
             
