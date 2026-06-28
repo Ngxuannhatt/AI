@@ -1,4 +1,4 @@
-# 📌 Nhập môn Trí tuệ Nhân tạo - Project Collection
+# 📌 Introduction to Artificial Intelligence  - AI vacuum cleaner project & visual interface
 
 ---
 
