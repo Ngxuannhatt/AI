@@ -1,27 +1,33 @@
 import tkinter as tk
 from tkinter import scrolledtext, messagebox
 import random
+import sys
+import os
 
-# Giữ nguyên các import thuật toán của bạn
-from BFS_1 import bfs_1
-from BFS_2 import bfs_2
-from DFS_1 import dfs_1
-from DFS_2 import dfs_2
-from IDS_1 import ids_1
-from IDS_2 import ids_2
-from UCS import ucs
-from GS import gs
-from Astar import A_Star
-from IDAstar import IDAstar
-from Simple_Hill_Climbing import Simple_Hill_Climbing
-from Steepest_Ascent_Hill_Climbing import Steepest_Ascent_Hill_Climbing
-from Stochastic_Hill_Climbing import Stochastic_Hill_Climbing
-from Random_Restart_Hill_Climbing import Random_Restart_Hill_Climbing
-from Local_Beam_Search import Local_Beam_Search
-from Simulated_Annealing import SimulatedAnnealing
-from DFS_Searching_With_No_Observation import dfs_no_observation
-from DFS_Searching_for_partially_observable_problems import dfs_partially_observable
-from And_Or_Search import and_or_graph_search
+# Thêm thư mục gốc của project vào sys.path để nhận diện thư mục algorithms
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+from algorithms.BFS_1 import bfs_1
+from algorithms.BFS_2 import bfs_2
+from algorithms.DFS_1 import dfs_1
+from algorithms.DFS_2 import dfs_2
+from algorithms.IDS_1 import ids_1
+from algorithms.IDS_2 import ids_2
+from algorithms.UCS import ucs
+from algorithms.GS import gs
+from algorithms.Astar import A_Star
+from algorithms.IDAstar import IDAstar
+from algorithms.Simple_Hill_Climbing import Simple_Hill_Climbing
+from algorithms.Steepest_Ascent_Hill_Climbing import Steepest_Ascent_Hill_Climbing
+from algorithms.Stochastic_Hill_Climbing import Stochastic_Hill_Climbing
+from algorithms.Random_Restart_Hill_Climbing import Random_Restart_Hill_Climbing
+from algorithms.Local_Beam_Search import Local_Beam_Search
+from algorithms.Simulated_Annealing import SimulatedAnnealing
+from algorithms.DFS_Searching_With_No_Observation import dfs_no_observation
+from algorithms.DFS_Searching_for_partially_observable_problems import dfs_partially_observable
+from algorithms.And_Or_Search import and_or_graph_search
 
 # ==========================================
 # PHẦN 2: LỚP GIAO DIỆN (UI) CHÍNH
@@ -47,8 +53,24 @@ class VacuumApp:
         self.is_running = False  # Khóa nút bấm khi đang chạy animation
         
         # Tải ảnh máy hút bụi một lần duy nhất để tránh bị giải phóng bộ nhớ (garbage collection) làm mất hình ở ma trận bên trái
+        import os
+        img_path = 'vacuum.png'
         try:
-            self.img_vacuum = tk.PhotoImage(file='vacuum.png', master=self.root)
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            img_path = os.path.join(current_dir, 'vacuum.png')
+        except NameError:
+            # Fallback if __file__ is not defined
+            candidates = [
+                'vacuum.png',
+                os.path.join('vacuum_project', 'visualizer', 'vacuum.png'),
+                os.path.join('visualizer', 'vacuum.png')
+            ]
+            for cand in candidates:
+                if os.path.exists(cand):
+                    img_path = cand
+                    break
+        try:
+            self.img_vacuum = tk.PhotoImage(file=img_path, master=self.root)
         except Exception:
             self.img_vacuum = None
             
@@ -152,8 +174,12 @@ class VacuumApp:
 
         # Đưa giao diện về trạng thái vẽ 1 ma trận mặc định khi reset
         self.is_dual_state = False
-        
-        with open("matrix.txt", "r") as f:
+        import os
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        matrix_path = os.path.join(current_dir, "matrix.txt")
+
+        with open(matrix_path, "r") as f:
             self.matrix = []
             for line in f:
                 row = list(map(int, line.strip().split()))
@@ -171,10 +197,8 @@ class VacuumApp:
     def draw_grid(self):
         self.canvas.delete("all")
         if self.n == 0: return
-
         w = self.canvas.winfo_width()
         h = self.canvas.winfo_height()
-
         if self.is_dual_state:
             # Chế độ 2 ma trận: Chia đôi chiều rộng Canvas
             self._draw_single_grid(0, 0, w/2, h, self.matrix, self.agent_x, self.agent_y, "Trạng thái 1")

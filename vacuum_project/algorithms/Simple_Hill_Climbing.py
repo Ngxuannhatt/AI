@@ -30,7 +30,7 @@ def get_vacuum_neighbors(self, curr):
 
 def Simple_Hill_Climbing(self):
     """
-    Thuật toán Simple Hill Climbing tuân thủ chính xác theo ảnh bài giảng.
+    Thuật toán Simple Hill Climbing 
     """
     # 1. Current_State = Start
     root_node = Node(self.agent_x, self.agent_y, self.matrix, parent=None, action=f"Bắt đầu tại ({self.agent_x},{self.agent_y})")

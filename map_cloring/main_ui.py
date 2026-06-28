@@ -9,7 +9,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from back_tracking import map_coloring_backtracking
 from forward_checking import forward_checking_coloring
-
+from AC3 import ac3_checking_coloring
+from min_conflicts import min_conflicts_coloring
 # --- CẤU HÌNH ĐỒ THỊ 7 QUẬN TP.HCM ---
 NEIGHBORS = {
     'Quận 1': ['Quận 3', 'Quận 10'],
@@ -101,7 +102,7 @@ class MapColoringApp:
         
         # Chọn thuật toán
         tk.Label(left_frame, text="Chọn Thuật Toán:", font=("Arial", 10), bg="#f8f9fa").pack(anchor="w")
-        algo_combo = ttk.Combobox(left_frame, textvariable=self.algo_var, values=["Backtracking", "Forward Checking"], state="readonly", font=("Arial", 10))
+        algo_combo = ttk.Combobox(left_frame, textvariable=self.algo_var, values=["Backtracking", "Forward Checking","AC3", "Min_conflicts"], state="readonly", font=("Arial", 10))
         algo_combo.pack(fill=tk.X, pady=(0, 15))
         
         # Chọn số màu
@@ -330,11 +331,15 @@ class MapColoringApp:
                         'num_colors': c
                     })
                     
-                if not is_fc:
+                if algo == "Backtracking":
                     sol = map_coloring_backtracking(self.neighbors, c, callback=make_callback(c))
-                else:
+                elif algo == "Forward Checking":
                     sol = forward_checking_coloring(self.neighbors, c, callback=make_callback(c))
-                    
+                elif algo == "AC3":
+                    sol = ac3_checking_coloring(self.neighbors, c, callback=make_callback(c))
+                elif algo == "Min_conflicts":
+                    sol = min_conflicts_coloring(self.neighbors, c, callback=make_callback(c)) 
+                
                 if sol is not None:
                     solution = sol
                     final_colors_used = c
@@ -352,11 +357,18 @@ class MapColoringApp:
                 'num_colors': c
             })
             
-            if not is_fc:
-                solution = map_coloring_backtracking(self.neighbors, c, callback=make_callback(c))
-            else:
-                solution = forward_checking_coloring(self.neighbors, c, callback=make_callback(c))
-            final_colors_used = c
+            if algo == "Backtracking":
+                sol = map_coloring_backtracking(self.neighbors, c, callback=make_callback(c))
+            elif algo == "Forward Checking":
+                sol = forward_checking_coloring(self.neighbors, c, callback=make_callback(c))
+            elif algo == "AC3":
+                sol = ac3_checking_coloring(self.neighbors, c, callback=make_callback(c))
+            elif algo == "Min_conflicts":
+                sol = min_conflicts_coloring(self.neighbors, c, callback=make_callback(c))
+            
+            solution = sol
+            if solution is not None:
+                final_colors_used = c
 
         # Thêm bước báo cáo kết quả cuối cùng
         last_step = self.steps[-1]
