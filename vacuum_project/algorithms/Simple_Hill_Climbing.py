@@ -1,8 +1,28 @@
 from node import Node
 
-def get_misplaced_count(self, matrix):
-    """Hàm h(n): Tính số ô còn rác trên ma trận hiện tại."""
-    return sum(row.count(1) for row in matrix)
+def get_heuristic(self, node):
+    """
+    h(n) = số ô còn rác + khoảng cách Manhattan tới đống rác gần nhất
+    """
+    dirt_positions = []
+    n = len(node.matrix)
+
+    for i in range(n):
+        for j in range(n):
+            if node.matrix[i][j] == 1:
+                dirt_positions.append((i, j))
+
+    # Goal
+    if not dirt_positions:
+        return 0
+
+    # Tính khoảng cách Manhattan từ vị trí hiện tại của agent tới cục rác gần nhất
+    nearest = min(
+        abs(node.x - r) + abs(node.y - c)
+        for r, c in dirt_positions
+    )
+
+    return len(dirt_positions) + nearest
 
 def get_vacuum_neighbors(self, curr):
     """
@@ -17,7 +37,7 @@ def get_vacuum_neighbors(self, curr):
         nr, nc = r + dr, c + dc
         if 0 <= nr < n and 0 <= nc < n:
             child = Node(nr, nc, curr.matrix, parent=curr, action=f"Đi tới ({nr},{nc})")
-            possible_moves.append(child) # Hill climbing không cần lưu cost riêng biệt
+            possible_moves.append(child)
             
     # 2. Hành động Hút rác (Chỉ thực hiện khi ô hiện tại có rác)
     if curr.matrix[r][c] == 1:
@@ -30,54 +50,49 @@ def get_vacuum_neighbors(self, curr):
 
 def Simple_Hill_Climbing(self):
     """
-    Thuật toán Simple Hill Climbing 
+    Thuật toán Simple Hill Climbing chuẩn hóa
     """
-    # 1. Current_State = Start
+    # 1. Khởi tạo trạng thái bắt đầu
     root_node = Node(self.agent_x, self.agent_y, self.matrix, parent=None, action=f"Bắt đầu tại ({self.agent_x},{self.agent_y})")
     curr_node = root_node
     
-    # Lưu lại đường đi thực tế để trả về cho UI vẽ hoạt ảnh
+    # Lưu lại đường đi thực tế
     path = [curr_node]
     
-    # Giới hạn số vòng lặp tối đa để tránh trường hợp vòng lặp vô hạn ngoài ý muốn
     max_loops = 1000 
     loop_count = 0
     
-    # 2. TRONG KHI (đúng):
+    # 2. Vòng lặp tìm kiếm
     while loop_count < max_loops:
         loop_count += 1
         
-        # Nếu Current_State == Goal (Không còn ô sai / rác nào nữa)
-        if curr_node.is_goal() or get_misplaced_count(self, curr_node.matrix) == 0:
-            # TRẢ VỀ Current_State (dưới dạng chuỗi đường đi từ Start đến đích)
+        # ĐIỀU KIỆN DỪNG 1: Đã sạch rác (Goal)
+        # Sửa lỗi truyền tham số: truyền trực tiếp curr_node thay vì curr_node.matrix
+        if curr_node.is_goal() or get_heuristic(self, curr_node) == 0:
             return path
             
-        # Sinh các trạng thái lân cận của Current_State
+        # Sinh các trạng thái lân cận
+        # Sửa lỗi truyền tham số: truyền curr_node
         neighbors = get_vacuum_neighbors(self, curr_node)
         
         found_better = False
-        curr_h = get_misplaced_count(self, curr_node.matrix)
+        curr_h = get_heuristic(self, curr_node)
         
-        # Tìm thấy Next_State ĐẦU TIÊN có Value(Next_State) > Value(Current_State)
-        # Tương đương với việc h(Next_State) < h(Current_State)
+        # Tìm trạng thái đầu tiên tốt hơn
         for next_node in neighbors:
-            next_h = get_misplaced_count(self, next_node.matrix)
+            # Sửa lỗi truyền tham số: truyền next_node
+            next_h = get_heuristic(self, next_node)
             
             if next_h < curr_h:
-                # Thiết lập mối quan hệ cha-con để phục vụ cấu trúc Node của bạn
                 next_node.parent = curr_node 
-                
-                # Current_State = Next_State
                 curr_node = next_node
                 path.append(curr_node)
                 
-                # Đánh dấu đã tìm thấy và LẬP TỨC ngắt vòng lặp duyệt lân cận
                 found_better = True
-                break 
+                break  # Ngắt ngay lập tức theo đúng tính chất Simple Hill Climbing
                 
-        # Nếu ĐÃ DUYỆT HẾT lân cận mà không có ai tốt hơn:
+        # ĐIỀU KIỆN DỪNG 2: Kẹt ở cực đại cục bộ (Local Maximum / Flat Local Maximum)
         if not found_better:
-            # TRẢ VỀ Current_State (Dừng vì đạt cực đại cục bộ)
             return path
 
     return path

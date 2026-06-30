@@ -4,22 +4,25 @@ import sys
 import os
 import copy
 
-# Add current folder to path to ensure correct imports
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from back_tracking import map_coloring_backtracking
-from forward_checking import forward_checking_coloring
-from AC3 import ac3_checking_coloring
-from min_conflicts import min_conflicts_coloring
-# --- CẤU HÌNH ĐỒ THỊ 7 QUẬN TP.HCM ---
+from algorithms.back_tracking import map_coloring_backtracking
+from algorithms.forward_checking import forward_checking_coloring
+from algorithms.AC3 import ac3_checking_coloring
+from algorithms.min_conflicts import min_conflicts_coloring
+
 NEIGHBORS = {
     'Quận 1': ['Quận 3', 'Quận 10'],
     'Quận 3': ['Quận 1', 'Quận Bình Thạnh', 'Quận Phú Nhuận'],
-    'Quận Bình Thạnh': ['Quận 3'],
+    'Quận Bình Thạnh': ['Quận 3', 'Quận 5'],
     'Quận Phú Nhuận': ['Quận 3'],
     'Quận 10': ['Quận 1', 'Quận 5', 'Quận 11'],
-    'Quận 5': ['Quận 10'],
-    'Quận 11': ['Quận 10']
+    'Quận 5': ['Quận 10', 'Quận Bình Thạnh'],
+    'Quận 11': ['Quận 10','Quận 4'],
+    'Quận 6':['Quận 1', 'Quận 4', 'Quận 7'],
+    'Quận 4':['Quận 6', 'Quận 11'],
+    'Quận 7':['Quận 6']
 }
 
 NODE_POSITIONS = {
@@ -29,17 +32,23 @@ NODE_POSITIONS = {
     'Quận Phú Nhuận': (340, 225),
     'Quận 10': (280, 350),
     'Quận 5': (450, 290),
-    'Quận 11': (450, 400)
+    'Quận 11': (450, 400),
+    'Quận 6':(280,500),
+    'Quận 4':[480,480],
+    'Quận 7':[600,550] 
 }
 
 DISPLAY_NAMES = {
-    'Quận 1': 'Quận 1\n(Start Node)',
+    'Quận 1': 'Quận 1',
     'Quận 3': 'Quận 3',
     'Quận Bình Thạnh': 'Bình Thạnh',
     'Quận Phú Nhuận': 'Phú Nhuận',
     'Quận 10': 'Quận 10',
     'Quận 5': 'Quận 5',
-    'Quận 11': 'Quận 11\n(Success Node)'
+    'Quận 11': 'Quận 11',
+    'Quận 6':'Quận 6',
+    'Quận 4':'Quận 4',
+    'Quận 7':'Quận 7'
 }
 
 COLOR_INFO = {
