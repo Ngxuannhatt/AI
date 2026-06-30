@@ -529,7 +529,7 @@ Giải quyết bài toán bằng cách phân bổ giá trị cho các biến sao
       return failure
   ```
 * **Minh họa hoạt động:**
-  ![Min-Conflicts](gift/Minconflicts.gif)
+  ![Min-Conflicts](gift/con%20flicts%201.gif)
 
 ---
 
